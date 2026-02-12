@@ -1,0 +1,13 @@
+{
+  "name": "@monffy/contracts",
+  "version": "0.1.0",
+  "description": "MONFFY Smart Contracts on Monad",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test",
+    "test:gas": "forge test --gas-report",
+    "deploy:testnet": "forge script script/Deploy.s.sol --rpc-url $MONAD_TESTNET_RPC --broadcast",
+    "deploy:mainnet": "forge script script/Deploy.s.sol --rpc-url $MONAD_MAINNET_RPC --broadcast --verify"
+  },
+  "keywords": ["monad", "nft", "prediction-market", "solidity"]
+}
