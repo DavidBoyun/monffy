@@ -29,8 +29,9 @@ export function Providers({ children }: ProvidersProps) {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
+          locale="en"
           theme={darkTheme({
-            accentColor: "#836EF9", // Monad purple
+            accentColor: "#6E54FF",
             accentColorForeground: "white",
             borderRadius: "medium",
             fontStack: "system",
