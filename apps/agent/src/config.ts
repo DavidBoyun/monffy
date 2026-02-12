@@ -57,6 +57,10 @@ const envSchema = z.object({
   LOG_LEVEL: z
     .enum(["trace", "debug", "info", "warn", "error", "fatal"])
     .default("info"),
+
+  // Demo mode (for hackathon video recording)
+  DEMO_MODE: z.coerce.boolean().default(false),
+  DEMO_MARKET_DURATION_SECS: z.coerce.number().int().positive().default(60),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
@@ -75,6 +79,11 @@ function loadConfig(): EnvConfig {
 }
 
 export const config = loadConfig();
+
+// Effective market duration (demo mode overrides)
+export const EFFECTIVE_MARKET_DURATION = config.DEMO_MODE
+  ? config.DEMO_MARKET_DURATION_SECS
+  : config.MARKET_DURATION_SECS;
 
 // Pyth price feed IDs
 export const PYTH_FEEDS = {

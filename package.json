@@ -12,6 +12,7 @@
     "build": "pnpm --filter web build",
     "lint": "pnpm --filter web lint",
     "dev:agent": "pnpm --filter @monffy/agent dev",
+    "dev:agent:demo": "pnpm --filter @monffy/agent dev:demo",
     "start:agent": "pnpm --filter @monffy/agent start",
     "generate-wallet": "pnpm --filter @monffy/agent generate-wallet",
     "contracts:build": "pnpm --filter contracts build",

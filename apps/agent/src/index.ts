@@ -12,6 +12,10 @@ async function main(): Promise<void> {
   agentLog.info("🐰 MONFFY Claw Agent - Game Master AI");
   agentLog.info("===========================================");
 
+  if (config.DEMO_MODE) {
+    agentLog.info("🎬 DEMO MODE ACTIVE — 60s market cycles, fast signals");
+  }
+
   // Step 1: Verify infrastructure
   agentLog.info("Verifying infrastructure...");
 

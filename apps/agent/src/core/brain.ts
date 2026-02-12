@@ -1,4 +1,4 @@
-import { config, PYTH_FEEDS } from "../config.js";
+import { config, PYTH_FEEDS, EFFECTIVE_MARKET_DURATION } from "../config.js";
 import {
   getState,
   transition,
@@ -36,8 +36,8 @@ import { fetchPriceWithFallback } from "../utils/pyth-client.js";
 import { brainLog } from "../utils/logger.js";
 import type { PriceSignal, AgentQuestion } from "../utils/types.js";
 
-const QUIET_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
-const MIN_QUESTION_GAP_MS = 1 * 60 * 1000; // 1 min between questions
+const QUIET_THRESHOLD_MS = config.DEMO_MODE ? 30 * 1000 : 5 * 60 * 1000;
+const MIN_QUESTION_GAP_MS = config.DEMO_MODE ? 10 * 1000 : 1 * 60 * 1000;
 
 export function createBrain(priceMonitor: PriceMonitor) {
   const pendingSignals: PriceSignal[] = [];
@@ -112,7 +112,7 @@ export function createBrain(priceMonitor: PriceMonitor) {
       const result = await createOnchainMarket(
         question.pythPriceId as `0x${string}`,
         strikePriceScaled,
-        config.MARKET_DURATION_SECS
+        EFFECTIVE_MARKET_DURATION
       );
       if (result) {
         onchainMarketId = result.marketId;

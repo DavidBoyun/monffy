@@ -57,6 +57,9 @@ export async function createOnchainMarket(
       { marketId, txHash, gasUsed: receipt.gasUsed.toString() },
       "Market created on-chain"
     );
+    chainLog.info(
+      `[ONCHAIN] action=create marketId=${marketId} txHash=${txHash} url=https://monadscan.com/tx/${txHash}`
+    );
 
     return { marketId, txHash };
   });
@@ -88,6 +91,9 @@ export async function resolveOnchainMarket(
     chainLog.info(
       { marketId, txHash, gasUsed: receipt.gasUsed.toString() },
       "Market resolved on-chain"
+    );
+    chainLog.info(
+      `[ONCHAIN] action=resolve marketId=${marketId} txHash=${txHash} url=https://monadscan.com/tx/${txHash}`
     );
 
     return { txHash };
@@ -121,7 +127,9 @@ export async function logAgentAction(
       gas: GAS_LIMITS.CLAW_LOG,
     });
 
-    chainLog.debug({ actionType, txHash }, "Agent action logged on-chain");
+    chainLog.info(
+      `[ONCHAIN] action=log type=${actionType} txHash=${txHash} url=https://monadscan.com/tx/${txHash}`
+    );
     return txHash;
   });
 }

@@ -1,4 +1,4 @@
-import { config, PYTH_FEEDS } from "../config.js";
+import { config, PYTH_FEEDS, EFFECTIVE_MARKET_DURATION } from "../config.js";
 import type { PriceSignal, AgentQuestion } from "../utils/types.js";
 
 const SPIKE_TEMPLATES = [
@@ -41,7 +41,7 @@ export function generateQuestion(signal: PriceSignal): AgentQuestion {
         : QUIET_TEMPLATES;
 
   const questionText = formatTemplate(pickRandom(templates), signal);
-  const durationSecs = config.MARKET_DURATION_SECS;
+  const durationSecs = EFFECTIVE_MARKET_DURATION;
   const expiresAt = new Date(Date.now() + durationSecs * 1000);
 
   // Determine feed ID based on symbol
