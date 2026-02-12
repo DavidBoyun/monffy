@@ -27,10 +27,6 @@ export const metadata: Metadata = {
     "Blockchain",
     "Pyth",
   ],
-  icons: {
-    icon: "/monffy/icon.png",
-    apple: "/monffy/icon.png",
-  },
   openGraph: {
     title: "MONFFY - Autonomous AI Agent on Monad",
     description:
