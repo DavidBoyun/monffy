@@ -1,5 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Share2, Check, Twitter } from "lucide-react";
 
 interface NarrativeFeedProps {
     id: string;
@@ -19,6 +22,21 @@ function formatTimeAgo(dateStr: string): string {
 }
 
 export function NarrativeFeed({ id, narrative, isCorrect, resolvedAt }: NarrativeFeedProps) {
+    const [copied, setCopied] = useState(false);
+
+    function handleCopy() {
+        const text = `${narrative}\n\n🐰 MONFFY — Autonomous AI Agent on Monad\nhttps://monffy.xyz/agent`;
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    }
+
+    function handleShareX() {
+        const text = encodeURIComponent(`${narrative}\n\n🐰 @monaboratory on Monad`);
+        const url = encodeURIComponent("https://monffy.xyz/agent");
+        window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, "_blank");
+    }
+
     return (
         <div className="flex gap-4 group">
             <div className="flex-shrink-0 relative w-10 h-10">
@@ -55,6 +73,24 @@ export function NarrativeFeed({ id, narrative, isCorrect, resolvedAt }: Narrativ
                     }
                 `}>
                     {narrative}
+                </div>
+
+                {/* Share buttons */}
+                <div className="flex items-center gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <button
+                        onClick={handleShareX}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-medium text-monad-text/40 hover:text-white hover:bg-monffy-purple/15 border border-transparent hover:border-monffy-purple/20 transition-all"
+                    >
+                        <Twitter className="w-3 h-3" />
+                        Share
+                    </button>
+                    <button
+                        onClick={handleCopy}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-medium text-monad-text/40 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-all"
+                    >
+                        {copied ? <Check className="w-3 h-3 text-monffy-mint" /> : <Share2 className="w-3 h-3" />}
+                        {copied ? "Copied!" : "Copy"}
+                    </button>
                 </div>
             </div>
         </div>
