@@ -141,7 +141,7 @@ export default function AgentPage() {
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
             <div className="relative w-7 h-7 transition-transform group-hover:scale-110 duration-300">
-              <Image src="/monffy/avatar.png" alt="MONFFY" fill className="rounded-full object-cover ring-2 ring-monffy-purple/20" />
+              <Image src="/monffy/icon.png" alt="MONFFY" fill className="rounded-full object-cover ring-2 ring-monffy-purple/20" />
             </div>
             <span className="text-sm font-bold text-white tracking-tight">MONFFY</span>
           </Link>

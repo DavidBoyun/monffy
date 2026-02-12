@@ -41,7 +41,7 @@ export function NarrativeFeed({ id, narrative, isCorrect, resolvedAt }: Narrativ
         <div className="flex gap-4 group">
             <div className="flex-shrink-0 relative w-10 h-10">
                 <Image
-                    src="/monffy/avatar.png"
+                    src="/monffy/icon.png"
                     alt="MONFFY"
                     fill
                     className="rounded-full object-cover border border-monffy-purple/20"

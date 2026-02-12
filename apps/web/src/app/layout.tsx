@@ -27,6 +27,10 @@ export const metadata: Metadata = {
     "Blockchain",
     "Pyth",
   ],
+  icons: {
+    icon: "/monffy/icon.png",
+    apple: "/monffy/icon.png",
+  },
   openGraph: {
     title: "MONFFY - Autonomous AI Agent on Monad",
     description:
@@ -35,7 +39,7 @@ export const metadata: Metadata = {
     url: "https://monffy.xyz",
     images: [
       {
-        url: "https://monffy.xyz/monffy/hero.png",
+        url: "https://monffy.xyz/monffy/logo.png",
         width: 1200,
         height: 630,
         alt: "MONFFY - Autonomous AI Prediction Agent",
@@ -47,7 +51,7 @@ export const metadata: Metadata = {
     title: "MONFFY - Autonomous AI Agent on Monad",
     description:
       "The first autonomous AI prediction agent on Monad. 24/7 autonomous predictions.",
-    images: ["https://monffy.xyz/monffy/hero.png"],
+    images: ["https://monffy.xyz/monffy/logo.png"],
   },
 };
 

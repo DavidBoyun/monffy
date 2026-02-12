@@ -145,7 +145,7 @@ export function ActivePrediction({ id, question, expiresAt, prediction, triggerT
                 {/* MONFFY's prediction */}
                 <div className="flex items-end gap-3 mb-4">
                     <div className="relative w-9 h-9 flex-shrink-0">
-                        <Image src="/monffy/avatar.png" alt="MONFFY" fill className="rounded-full object-cover border-2 border-monad-surface" />
+                        <Image src="/monffy/icon.png" alt="MONFFY" fill className="rounded-full object-cover border-2 border-monad-surface" />
                     </div>
 
                     {prediction ? (

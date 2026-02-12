@@ -18,7 +18,7 @@ export function MonffyAvatar({ size = "md", state = "default", className = "", w
     // Map states to image files (transparent PNGs)
     const imageSrc =
         state === "sleeping" ? "/monffy/sleeping.png" :
-            "/monffy/avatar.png";
+            "/monffy/icon.png";
 
     return (
         <div className={`
