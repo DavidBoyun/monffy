@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { TrendingUp, TrendingDown, Timer, Flame, ArrowDown, Radio, Check } from "lucide-react";
+import { TrendingUp, TrendingDown, Timer, Flame, ArrowDown, Radio, Check, Lock } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { useAccount } from "wagmi";
 
@@ -19,7 +19,7 @@ interface ActivePredictionProps {
     triggerType: "SPIKE" | "DUMP" | "QUIET" | string | null;
 }
 
-function Countdown({ expiresAt }: { expiresAt: string }) {
+function Countdown({ expiresAt, onExpire }: { expiresAt: string; onExpire: () => void }) {
     const [timeLeft, setTimeLeft] = useState("");
     const [isUrgent, setIsUrgent] = useState(false);
 
@@ -29,6 +29,7 @@ function Countdown({ expiresAt }: { expiresAt: string }) {
             if (remaining <= 0) {
                 setTimeLeft("00:00");
                 setIsUrgent(true);
+                onExpire();
                 return;
             }
             setIsUrgent(remaining < 60000);
@@ -40,7 +41,7 @@ function Countdown({ expiresAt }: { expiresAt: string }) {
         updateTimer();
         const interval = setInterval(updateTimer, 1000);
         return () => clearInterval(interval);
-    }, [expiresAt]);
+    }, [expiresAt, onExpire]);
 
     return (
         <span className={`font-mono tabular-nums ${isUrgent ? "text-monffy-red animate-pulse" : "text-monffy-gold"}`}>
@@ -69,6 +70,10 @@ export function ActivePrediction({ id, question, expiresAt, prediction, triggerT
     const { address } = useAccount();
     const [userPick, setUserPick] = useState<"UP" | "DOWN" | null>(null);
     const [submitting, setSubmitting] = useState(false);
+    const [expired, setExpired] = useState(() => {
+        if (!expiresAt) return false;
+        return new Date(expiresAt).getTime() <= Date.now();
+    });
 
     // Check if user already voted
     useEffect(() => {
@@ -87,7 +92,7 @@ export function ActivePrediction({ id, question, expiresAt, prediction, triggerT
     }, [id, address]);
 
     async function handleVote(pick: "UP" | "DOWN") {
-        if (!address || userPick || submitting) return;
+        if (!address || userPick || submitting || expired) return;
         setSubmitting(true);
 
         const { error } = await supabase.from("responses").insert({
@@ -107,15 +112,28 @@ export function ActivePrediction({ id, question, expiresAt, prediction, triggerT
     return (
         <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-monffy-purple/30 to-monffy-light/20 rounded-2xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-500" />
-            <div className="relative rounded-2xl glass-panel-hover p-5">
+            <div className={`relative rounded-2xl glass-panel-hover p-5 ${expired ? "opacity-60" : ""}`}>
                 <div className="flex justify-between items-start mb-4">
                     <TriggerBadge type={triggerType} />
                     {expiresAt && (
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-monad-surface/50 border border-monad-border">
-                            <Timer className="w-3 h-3 text-monffy-gold" />
-                            <span className="text-xs text-monad-text/70">
-                                <Countdown expiresAt={expiresAt} />
-                            </span>
+                        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${
+                            expired
+                                ? "bg-monad-text/5 border-monad-text/10"
+                                : "bg-monad-surface/50 border-monad-border"
+                        }`}>
+                            {expired ? (
+                                <>
+                                    <Lock className="w-3 h-3 text-monad-text/40" />
+                                    <span className="text-[10px] font-mono font-bold text-monad-text/40 uppercase">Closed</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Timer className="w-3 h-3 text-monffy-gold" />
+                                    <span className="text-xs text-monad-text/70">
+                                        <Countdown expiresAt={expiresAt} onExpire={() => setExpired(true)} />
+                                    </span>
+                                </>
+                            )}
                         </div>
                     )}
                 </div>
@@ -153,7 +171,12 @@ export function ActivePrediction({ id, question, expiresAt, prediction, triggerT
                 </div>
 
                 {/* User vote */}
-                {userPick ? (
+                {expired && !userPick ? (
+                    <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-monad-text/10 bg-monad-text/5">
+                        <Lock className="w-4 h-4 text-monad-text/30" />
+                        <span className="text-sm font-medium text-monad-text/30">Voting closed</span>
+                    </div>
+                ) : userPick ? (
                     <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${
                         userPick === "UP"
                             ? "bg-monffy-mint/10 border-monffy-mint/20 text-monffy-mint"
