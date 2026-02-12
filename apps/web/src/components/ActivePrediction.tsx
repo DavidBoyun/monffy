@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { TrendingUp, TrendingDown, Timer, Flame, ArrowDown, Radio } from "lucide-react";
+import { TrendingUp, TrendingDown, Timer, Flame, ArrowDown, Radio, Check } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
+import { useAccount } from "wagmi";
+
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 interface ActivePredictionProps {
     id: string;
@@ -57,8 +64,43 @@ function TriggerBadge({ type }: { type: string | null }) {
     );
 }
 
-export function ActivePrediction({ question, expiresAt, prediction, triggerType }: ActivePredictionProps) {
+export function ActivePrediction({ id, question, expiresAt, prediction, triggerType }: ActivePredictionProps) {
     const isUp = prediction === "UP";
+    const { address } = useAccount();
+    const [userPick, setUserPick] = useState<"UP" | "DOWN" | null>(null);
+    const [submitting, setSubmitting] = useState(false);
+
+    // Check if user already voted
+    useEffect(() => {
+        if (!address) return;
+        supabase
+            .from("responses")
+            .select("selected_option")
+            .eq("question_id", id)
+            .eq("wallet_address", address.toLowerCase())
+            .single()
+            .then(({ data }) => {
+                if (data) {
+                    setUserPick(data.selected_option === 0 ? "UP" : "DOWN");
+                }
+            });
+    }, [id, address]);
+
+    async function handleVote(pick: "UP" | "DOWN") {
+        if (!address || userPick || submitting) return;
+        setSubmitting(true);
+
+        const { error } = await supabase.from("responses").insert({
+            question_id: id,
+            wallet_address: address.toLowerCase(),
+            selected_option: pick === "UP" ? 0 : 1,
+        });
+
+        if (!error) {
+            setUserPick(pick);
+        }
+        setSubmitting(false);
+    }
 
     return (
         <div className="relative group">
@@ -80,7 +122,8 @@ export function ActivePrediction({ question, expiresAt, prediction, triggerType 
                     {question}
                 </h3>
 
-                <div className="flex items-end gap-3">
+                {/* MONFFY's prediction */}
+                <div className="flex items-end gap-3 mb-4">
                     <div className="relative w-9 h-9 flex-shrink-0">
                         <Image src="/monffy/avatar.png" alt="MONFFY" fill className="rounded-full object-cover border-2 border-monad-surface" />
                     </div>
@@ -106,6 +149,39 @@ export function ActivePrediction({ question, expiresAt, prediction, triggerType 
                         </div>
                     )}
                 </div>
+
+                {/* User vote */}
+                {userPick ? (
+                    <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${
+                        userPick === "UP"
+                            ? "bg-monffy-mint/10 border-monffy-mint/20 text-monffy-mint"
+                            : "bg-monffy-red/10 border-monffy-red/20 text-monffy-red"
+                    }`}>
+                        <Check className="w-4 h-4" />
+                        <span className="text-sm font-bold">Your pick: {userPick}</span>
+                    </div>
+                ) : address ? (
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => handleVote("UP")}
+                            disabled={submitting}
+                            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-monffy-mint/20 text-monffy-mint hover:bg-monffy-mint/10 transition-all text-sm font-bold disabled:opacity-50"
+                        >
+                            <TrendingUp className="w-4 h-4" /> UP
+                        </button>
+                        <button
+                            onClick={() => handleVote("DOWN")}
+                            disabled={submitting}
+                            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-monffy-red/20 text-monffy-red hover:bg-monffy-red/10 transition-all text-sm font-bold disabled:opacity-50"
+                        >
+                            <TrendingDown className="w-4 h-4" /> DOWN
+                        </button>
+                    </div>
+                ) : (
+                    <div className="text-center py-2 text-[11px] text-monad-text/30 font-mono">
+                        Connect wallet to predict
+                    </div>
+                )}
             </div>
         </div>
     );

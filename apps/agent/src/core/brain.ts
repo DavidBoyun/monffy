@@ -36,8 +36,8 @@ import { fetchPriceWithFallback } from "../utils/pyth-client.js";
 import { brainLog } from "../utils/logger.js";
 import type { PriceSignal, AgentQuestion } from "../utils/types.js";
 
-const QUIET_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
-const MIN_QUESTION_GAP_MS = 2 * 60 * 1000; // 2 min between questions
+const QUIET_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
+const MIN_QUESTION_GAP_MS = 1 * 60 * 1000; // 1 min between questions
 
 export function createBrain(priceMonitor: PriceMonitor) {
   const pendingSignals: PriceSignal[] = [];
