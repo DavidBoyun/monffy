@@ -7,8 +7,8 @@ import { createClient } from "@supabase/supabase-js";
 import { useAccount } from "wagmi";
 
 const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL!.trim(),
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!.trim()
 );
 
 interface ActivePredictionProps {
@@ -78,7 +78,7 @@ export function ActivePrediction({ id, question, expiresAt, prediction, triggerT
             .select("selected_option")
             .eq("question_id", id)
             .eq("wallet_address", address.toLowerCase())
-            .single()
+            .maybeSingle()
             .then(({ data }) => {
                 if (data) {
                     setUserPick(data.selected_option === 0 ? "UP" : "DOWN");
@@ -96,7 +96,9 @@ export function ActivePrediction({ id, question, expiresAt, prediction, triggerT
             selected_option: pick === "UP" ? 0 : 1,
         });
 
-        if (!error) {
+        if (error) {
+            console.error("Vote failed:", error);
+        } else {
             setUserPick(pick);
         }
         setSubmitting(false);

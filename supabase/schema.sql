@@ -202,10 +202,10 @@ ALTER TABLE daily_streaks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE badges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE leaderboard ENABLE ROW LEVEL SECURITY;
 
--- Public read access for questions
+-- Public read access for questions (active AND resolved, for narrative feed)
 CREATE POLICY "Questions are viewable by everyone"
 ON questions FOR SELECT
-USING (is_active = true);
+USING (true);
 
 -- Users can view their own responses
 CREATE POLICY "Users can view own responses"

@@ -12,8 +12,8 @@ import { ActivityItem } from "@/components/ActivityFeed";
 import { SectionHeader } from "@/components/Layout";
 import { LoadingScreen } from "@/components/LoadingScreen";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!.trim();
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!.trim();
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface AgentStatsData {
