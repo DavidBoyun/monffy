@@ -1,4 +1,6 @@
 import { config, EFFECTIVE_PRICE_THRESHOLD, EFFECTIVE_SIGNAL_COOLDOWN } from "../config.js";
+
+const SIGNAL_LOOKBACK_SECS = config.DEMO_MODE ? 10 : 30;
 import { fetchPriceWithFallback } from "../utils/pyth-client.js";
 import { priceLog } from "../utils/logger.js";
 import type { PriceData, PriceSignal } from "../utils/types.js";
@@ -35,8 +37,8 @@ export function createPriceMonitor() {
   }
 
   function detectSignal(current: PriceData): PriceSignal | null {
-    // Need at least 30s of data for meaningful comparison
-    const previous = getPriceNSecondsAgo(30);
+    // Need enough price history for meaningful comparison
+    const previous = getPriceNSecondsAgo(SIGNAL_LOOKBACK_SECS);
     if (!previous || previous.price === 0) return null;
 
     // Reject if symbols don't match (fallback feed switched)

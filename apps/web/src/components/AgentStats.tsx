@@ -10,6 +10,7 @@ interface AgentStatsProps {
     accuracy: number;
     totalQuestions: number;
     uptimeSeconds: number;
+    isOnline: boolean;
 }
 
 function formatUptime(seconds: number): string {
@@ -97,7 +98,7 @@ function CircularProgress({ value, size = 100, strokeWidth = 6 }: { value: numbe
     );
 }
 
-export function AgentStats({ wins, losses, accuracy, totalQuestions, uptimeSeconds }: AgentStatsProps) {
+export function AgentStats({ wins, losses, accuracy, totalQuestions, uptimeSeconds, isOnline }: AgentStatsProps) {
     const total = wins + losses;
     const winRate = total > 0 ? (wins / total) * 100 : 0;
 
@@ -123,12 +124,16 @@ export function AgentStats({ wins, losses, accuracy, totalQuestions, uptimeSecon
                     <div className="relative z-10 p-8 flex flex-col justify-between h-full">
                         <div>
                             <div className="flex items-center gap-2 mb-3">
-                                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-monffy-mint/15 text-monffy-mint uppercase tracking-wider border border-monffy-mint/20">
+                                <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                    isOnline
+                                        ? 'bg-monffy-mint/15 text-monffy-mint border-monffy-mint/20'
+                                        : 'bg-monad-text/10 text-monad-text/40 border-monad-text/10'
+                                }`}>
                                     <span className="relative flex h-1.5 w-1.5">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-monffy-mint opacity-75" />
-                                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-monffy-mint" />
+                                        {isOnline && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-monffy-mint opacity-75" />}
+                                        <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${isOnline ? 'bg-monffy-mint' : 'bg-monad-text/30'}`} />
                                     </span>
-                                    Online
+                                    {isOnline ? 'Online' : 'Offline'}
                                 </span>
                                 <span className="text-xs font-mono text-monad-text/40">v2.1</span>
                             </div>

@@ -24,6 +24,23 @@ function formatTimeAgo(dateStr: string): string {
 export function NarrativeFeed({ id, narrative, isCorrect, resolvedAt }: NarrativeFeedProps) {
     const [copied, setCopied] = useState(false);
 
+    function buildShareText(): string {
+        const lines = narrative.split('\n').filter(l => l.trim());
+        const question = lines.find(l => l.startsWith('❓')) ?? '';
+        const prediction = lines.find(l => l.includes('MONFFY predicted')) ?? '';
+        const record = lines.find(l => l.startsWith('📊')) ?? '';
+
+        return [
+            question,
+            '',
+            prediction,
+            record,
+            '',
+            'Can you beat the bunny? 🐰',
+            '@monffy__ on Monad',
+        ].join('\n');
+    }
+
     function handleCopy() {
         const text = `${narrative}\n\n🐰 MONFFY — Autonomous AI Agent on Monad\nhttps://monffy.xyz/agent`;
         navigator.clipboard.writeText(text);
@@ -32,8 +49,8 @@ export function NarrativeFeed({ id, narrative, isCorrect, resolvedAt }: Narrativ
     }
 
     function handleShareX() {
-        const text = encodeURIComponent(`${narrative}\n\n🐰 @monaboratory on Monad`);
-        const url = encodeURIComponent("https://monffy.xyz/agent");
+        const text = encodeURIComponent(buildShareText());
+        const url = encodeURIComponent("https://monffy.xyz/");
         window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, "_blank");
     }
 

@@ -128,6 +128,11 @@ export default function AgentPage() {
   const wins = stats?.correct_predictions ?? 0;
   const losses = (stats?.total_predictions ?? 0) - wins;
 
+  // Agent is online if last action was within 2 minutes
+  const isOnline = stats?.last_action_at
+    ? Date.now() - new Date(stats.last_action_at).getTime() < 2 * 60 * 1000
+    : false;
+
   return (
     <main className="min-h-screen bg-monad-black text-monad-text selection:bg-monffy-purple/30 pb-20">
       {/* Background Ambience */}
@@ -167,13 +172,19 @@ export default function AgentPage() {
             })}
           </nav>
 
-          {/* Live Badge */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-monffy-purple/20 to-monffy-mint/10 border border-monffy-mint/15 animate-glow-border">
+          {/* Status Badge */}
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${
+            isOnline
+              ? 'bg-gradient-to-r from-monffy-purple/20 to-monffy-mint/10 border-monffy-mint/15'
+              : 'bg-monad-surface/40 border-monad-text/10'
+          }`}>
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-monffy-mint opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-monffy-mint" />
+              {isOnline && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-monffy-mint opacity-75" />}
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${isOnline ? 'bg-monffy-mint' : 'bg-monad-text/30'}`} />
             </span>
-            <span className="text-[10px] font-mono text-monffy-mint font-bold tracking-wider uppercase">Live</span>
+            <span className={`text-[10px] font-mono font-bold tracking-wider uppercase ${isOnline ? 'text-monffy-mint' : 'text-monad-text/40'}`}>
+              {isOnline ? 'Live' : 'Offline'}
+            </span>
           </div>
         </div>
       </header>
@@ -259,6 +270,7 @@ export default function AgentPage() {
               accuracy={stats?.accuracy ?? 0}
               totalQuestions={stats?.total_questions ?? 0}
               uptimeSeconds={stats?.uptime_seconds ?? 0}
+              isOnline={isOnline}
             />
           </div>
 

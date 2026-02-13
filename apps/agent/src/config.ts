@@ -61,7 +61,7 @@ const envSchema = z.object({
   // Demo mode (for hackathon video recording)
   DEMO_MODE: z.coerce.boolean().default(false),
   DEMO_MARKET_DURATION_SECS: z.coerce.number().int().positive().default(30),
-  DEMO_PRICE_THRESHOLD_PCT: z.coerce.number().positive().default(0.5),
+  DEMO_PRICE_THRESHOLD_PCT: z.coerce.number().positive().default(0.1),
   DEMO_SIGNAL_COOLDOWN_MS: z.coerce.number().int().positive().default(15000),
 });
 
