@@ -308,6 +308,52 @@ Result: ~60% accuracy — competitive but beatable.
 
 ---
 
+## Virality — Why People Share MONFFY
+
+MONFFY is designed to be shareable:
+
+- **"Can you beat MONFFY?"** — every prediction is a challenge against the AI bunny
+- **Narrative recaps** — personality-driven stories after each market (win, lose, or lonely)
+- **Public win/loss record** — the agent's accuracy is transparent, creating competitive stakes
+- **Badge milestones** — streaks, upsets, and perfect days minted as soulbound ERC-1155 tokens
+
+> Every market creates a shareable moment: "MONFFY just called UP — I'm taking the opposite. Who wins?"
+
+---
+
+## Demo Mode
+
+Short-cycle mode for recording the 2-minute hackathon demo video:
+
+```bash
+pnpm dev:agent:demo
+```
+
+- Markets resolve in 60 seconds (instead of 5 minutes)
+- Signal thresholds lowered for faster triggers
+- All transactions are real — Monad mainnet, not simulated
+
+---
+
+## Security & Safety
+
+This is a hackathon prototype. Key guardrails in place:
+
+- **Balance guard** — auto-pauses on-chain ops when wallet < 0.005 MON
+- **Explicit gas limits** — CREATE=200K, RESOLVE=100K, LOG=60K (Monad bills by gas_limit)
+- **Serial tx queue** — prevents nonce conflicts in rapid sequences
+- **Dedicated agent wallet** — isolated from any main wallet
+- **No user fund custody** — the agent never holds or manages user funds
+
+**Known limitations:**
+- Smart contracts are not audited
+- Oracle verification is owner-trust model (Pyth data passed by agent)
+- Not production-ready without formal security review
+
+> These are intentional trade-offs for a hackathon MVP. The architecture supports progressive decentralization.
+
+---
+
 ## Known Limitations & Roadmap
 
 We believe in transparency. Here's what we know and what's next:
