@@ -43,8 +43,8 @@ async function main(): Promise<void> {
     {
       priceInterval: `${config.PRICE_CHECK_INTERVAL_MS}ms`,
       brainInterval: `${config.BRAIN_TICK_INTERVAL_MS}ms`,
-      priceThreshold: `${config.PRICE_THRESHOLD_PCT}%`,
-      marketDuration: `${config.MARKET_DURATION_SECS}s`,
+      priceThreshold: `${EFFECTIVE_PRICE_THRESHOLD}%`,
+      marketDuration: `${EFFECTIVE_MARKET_DURATION}s`,
     },
     "Configuration loaded"
   );

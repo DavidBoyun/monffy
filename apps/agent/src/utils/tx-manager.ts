@@ -93,8 +93,8 @@ export async function enqueueTx<T>(
 
           if (isLastAttempt || !isRetryable) {
             chainLog.warn(
-              { err, label, attempt },
-              `Tx failed after ${attempt + 1} attempt(s)`
+              { label, attempt: attempt + 1, error: errMsg.slice(0, 80) },
+              `Tx failed — ${isRetryable ? "retries exhausted" : "non-retryable"}`
             );
             resolve(null);
             return;
@@ -102,8 +102,8 @@ export async function enqueueTx<T>(
 
           const delay = BASE_DELAY_MS * 2 ** attempt;
           chainLog.info(
-            { label, attempt: attempt + 1, delayMs: delay, error: errMsg },
-            "Retrying tx with backoff..."
+            { label, attempt: attempt + 1, delayMs: delay },
+            "Retrying tx..."
           );
           await new Promise((r) => setTimeout(r, delay));
         }
