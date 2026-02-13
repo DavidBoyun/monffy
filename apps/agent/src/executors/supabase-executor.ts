@@ -254,7 +254,10 @@ export async function incrementStats(
 export async function updateUptime(seconds: number): Promise<void> {
   await supabase
     .from("agent_stats")
-    .update({ uptime_seconds: seconds })
+    .update({
+      uptime_seconds: seconds,
+      last_action_at: new Date().toISOString(),
+    })
     .eq("id", 1);
 }
 
