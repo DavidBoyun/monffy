@@ -82,6 +82,30 @@ export interface AgentAction {
   readonly timestamp: number;
 }
 
+// ==================== Reason Trace (Decision Transparency) ====================
+
+export interface ReasonTrace {
+  readonly timestamp: number;
+  readonly signal: {
+    readonly type: "SPIKE" | "DUMP" | "QUIET";
+    readonly symbol: string;
+    readonly priceChangePct: number;
+    readonly currentPrice: number;
+  };
+  readonly components: {
+    readonly momentumScore: number;
+    readonly meanReversionScore: number;
+    readonly emaDeviation: number;
+    readonly noise: number;
+  };
+  readonly decision: {
+    readonly rawScore: number;
+    readonly clampedScore: number;
+    readonly prediction: "UP" | "DOWN";
+    readonly confidence: number;
+  };
+}
+
 // ==================== Brain Decision ====================
 
 export type BrainDecision =

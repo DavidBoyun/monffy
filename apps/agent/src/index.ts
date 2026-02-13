@@ -1,4 +1,4 @@
-import { config } from "./config.js";
+import { config, EFFECTIVE_MARKET_DURATION, EFFECTIVE_PRICE_THRESHOLD, EFFECTIVE_SIGNAL_COOLDOWN } from "./config.js";
 import { agentLog } from "./utils/logger.js";
 import { logAgentInfo } from "./utils/monad-client.js";
 import { testSupabaseConnection } from "./utils/supabase-client.js";
@@ -13,7 +13,14 @@ async function main(): Promise<void> {
   agentLog.info("===========================================");
 
   if (config.DEMO_MODE) {
-    agentLog.info("🎬 DEMO MODE ACTIVE — 60s market cycles, fast signals");
+    agentLog.info(
+      {
+        marketDuration: `${EFFECTIVE_MARKET_DURATION}s`,
+        signalThreshold: `${EFFECTIVE_PRICE_THRESHOLD}%`,
+        signalCooldown: `${EFFECTIVE_SIGNAL_COOLDOWN / 1000}s`,
+      },
+      "🎬 DEMO MODE — accelerated cycles for live demonstration"
+    );
   }
 
   // Step 1: Verify infrastructure
@@ -96,7 +103,7 @@ async function main(): Promise<void> {
       },
       "📊 MONFFY Status Report"
     );
-  }, 5 * 60 * 1000);
+  }, config.DEMO_MODE ? 60 * 1000 : 5 * 60 * 1000);
 
   // Graceful shutdown
   const shutdown = () => {

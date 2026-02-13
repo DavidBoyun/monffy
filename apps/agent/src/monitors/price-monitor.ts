@@ -1,4 +1,4 @@
-import { config } from "../config.js";
+import { config, EFFECTIVE_PRICE_THRESHOLD, EFFECTIVE_SIGNAL_COOLDOWN } from "../config.js";
 import { fetchPriceWithFallback } from "../utils/pyth-client.js";
 import { priceLog } from "../utils/logger.js";
 import type { PriceData, PriceSignal } from "../utils/types.js";
@@ -9,7 +9,7 @@ interface PriceHistory {
 }
 
 const MAX_HISTORY = 120; // ~10 min at 5s intervals
-const SIGNAL_COOLDOWN_MS = 60_000; // 1 min between signals
+const SIGNAL_COOLDOWN_MS = EFFECTIVE_SIGNAL_COOLDOWN;
 
 export function createPriceMonitor() {
   let history: PriceHistory = { prices: [], lastSignalTime: 0 };
@@ -50,7 +50,7 @@ export function createPriceMonitor() {
 
     const changePct =
       ((current.price - previous.price) / previous.price) * 100;
-    const threshold = config.PRICE_THRESHOLD_PCT;
+    const threshold = EFFECTIVE_PRICE_THRESHOLD;
 
     // Reject absurd values (> 20% in 30s is impossible for real markets)
     if (Math.abs(changePct) > 20) {

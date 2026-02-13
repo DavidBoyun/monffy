@@ -60,7 +60,9 @@ const envSchema = z.object({
 
   // Demo mode (for hackathon video recording)
   DEMO_MODE: z.coerce.boolean().default(false),
-  DEMO_MARKET_DURATION_SECS: z.coerce.number().int().positive().default(60),
+  DEMO_MARKET_DURATION_SECS: z.coerce.number().int().positive().default(30),
+  DEMO_PRICE_THRESHOLD_PCT: z.coerce.number().positive().default(0.5),
+  DEMO_SIGNAL_COOLDOWN_MS: z.coerce.number().int().positive().default(15000),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
@@ -84,6 +86,16 @@ export const config = loadConfig();
 export const EFFECTIVE_MARKET_DURATION = config.DEMO_MODE
   ? config.DEMO_MARKET_DURATION_SECS
   : config.MARKET_DURATION_SECS;
+
+// Effective price threshold (demo mode uses lower threshold for faster signals)
+export const EFFECTIVE_PRICE_THRESHOLD = config.DEMO_MODE
+  ? config.DEMO_PRICE_THRESHOLD_PCT
+  : config.PRICE_THRESHOLD_PCT;
+
+// Effective signal cooldown (demo mode uses shorter cooldown)
+export const EFFECTIVE_SIGNAL_COOLDOWN = config.DEMO_MODE
+  ? config.DEMO_SIGNAL_COOLDOWN_MS
+  : 60_000;
 
 // Pyth price feed IDs
 export const PYTH_FEEDS = {

@@ -36,8 +36,8 @@ import { fetchPriceWithFallback } from "../utils/pyth-client.js";
 import { brainLog } from "../utils/logger.js";
 import type { PriceSignal, AgentQuestion } from "../utils/types.js";
 
-const QUIET_THRESHOLD_MS = config.DEMO_MODE ? 30 * 1000 : 5 * 60 * 1000;
-const MIN_QUESTION_GAP_MS = config.DEMO_MODE ? 10 * 1000 : 1 * 60 * 1000;
+const QUIET_THRESHOLD_MS = config.DEMO_MODE ? 20 * 1000 : 5 * 60 * 1000;
+const MIN_QUESTION_GAP_MS = config.DEMO_MODE ? 8 * 1000 : 1 * 60 * 1000;
 
 export function createBrain(priceMonitor: PriceMonitor) {
   const pendingSignals: PriceSignal[] = [];
@@ -147,14 +147,34 @@ export function createBrain(priceMonitor: PriceMonitor) {
     // MONFFY makes its own prediction
     transition("AWAITING");
 
-    const prediction = makePrediction(signal, priceMonitor.getHistory());
+    const { prediction, reasonTrace } = makePrediction(signal, priceMonitor.getHistory());
     const predictionWithId = { ...prediction, questionId };
     await savePrediction(predictionWithId);
     await incrementStats("total_predictions");
 
+    // Log Reason Trace — decision transparency for judges
+    brainLog.info(
+      {
+        signal: `${reasonTrace.signal.type} (${reasonTrace.signal.priceChangePct > 0 ? "+" : ""}${reasonTrace.signal.priceChangePct.toFixed(2)}%)`,
+        momentum: reasonTrace.components.momentumScore.toFixed(3),
+        meanReversion: reasonTrace.components.meanReversionScore.toFixed(3),
+        emaDeviation: reasonTrace.components.emaDeviation.toFixed(3),
+        noise: reasonTrace.components.noise.toFixed(3),
+        rawScore: reasonTrace.decision.rawScore.toFixed(3),
+        clampedScore: reasonTrace.decision.clampedScore.toFixed(3),
+        prediction: reasonTrace.decision.prediction,
+        confidence: (reasonTrace.decision.confidence * 100).toFixed(0) + "%",
+      },
+      "📊 Reason Trace — why MONFFY decided"
+    );
+
     await logAgentAction(
       ONCHAIN_ACTION.PREDICTION_MADE,
-      JSON.stringify({ questionId, prediction: prediction.prediction })
+      JSON.stringify({
+        questionId,
+        prediction: prediction.prediction,
+        reasonTrace: reasonTrace.components,
+      })
     );
 
     await logAction({
