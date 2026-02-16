@@ -28,6 +28,7 @@ import {
   getExpiredUnresolvedQuestions,
   getResolvedWithoutNarrative,
   incrementStats,
+  recalculateStats,
   logAction,
   getParticipantCount,
   getOrCreateAgentStats,
@@ -41,6 +42,7 @@ const MIN_QUESTION_GAP_MS = config.DEMO_MODE ? 8 * 1000 : 1 * 60 * 1000;
 
 export function createBrain(priceMonitor: PriceMonitor) {
   const pendingSignals: PriceSignal[] = [];
+  const resolvingIds = new Set<string>(); // Guard against duplicate resolution
 
   // Register signal handler from price monitor
   priceMonitor.onSignal((signal) => {
@@ -200,6 +202,13 @@ export function createBrain(priceMonitor: PriceMonitor) {
     const expired = await getExpiredUnresolvedQuestions();
 
     for (const q of expired) {
+      // Skip if already being resolved (double-resolution guard)
+      if (resolvingIds.has(q.id)) {
+        brainLog.debug({ questionId: q.id }, "Skipping — already resolving");
+        continue;
+      }
+      resolvingIds.add(q.id);
+
       transition("RESOLVING");
 
       brainLog.info(
@@ -239,10 +248,6 @@ export function createBrain(priceMonitor: PriceMonitor) {
           ? (agentPrediction === "UP") === outcome
           : null;
 
-      if (agentCorrect === true) {
-        await incrementStats("correct_predictions");
-      }
-
       // Resolve in Supabase
       await resolveQuestion({
         questionId: q.id,
@@ -270,6 +275,7 @@ export function createBrain(priceMonitor: PriceMonitor) {
       });
 
       removeActiveMarket(q.id);
+      resolvingIds.delete(q.id);
 
       brainLog.info(
         {
@@ -280,6 +286,11 @@ export function createBrain(priceMonitor: PriceMonitor) {
         },
         "Market resolved"
       );
+    }
+
+    // Recalculate stats once after all resolutions (DB-derived, immune to duplication)
+    if (expired.length > 0) {
+      await recalculateStats();
     }
   }
 

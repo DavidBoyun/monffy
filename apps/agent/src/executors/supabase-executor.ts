@@ -220,35 +220,50 @@ export async function getOrCreateAgentStats(): Promise<AgentStats> {
 export async function incrementStats(
   field: "total_questions" | "total_predictions" | "correct_predictions"
 ): Promise<void> {
-  const stats = await getOrCreateAgentStats();
-  const currentValue =
-    field === "total_questions"
-      ? stats.totalQuestions
-      : field === "total_predictions"
-        ? stats.totalPredictions
-        : stats.correctPredictions;
+  // Use DB-derived recalculation instead of counter increment
+  // This is immune to duplicate resolution bugs
+  await recalculateStats();
+}
 
-  const newValue = currentValue + 1;
-  const updateData: Record<string, unknown> = {
-    [field]: newValue,
-    last_action_at: new Date().toISOString(),
-  };
+/**
+ * Recalculate agent_stats from actual questions table data.
+ * Immune to duplicate resolution — counts each question exactly once.
+ */
+export async function recalculateStats(): Promise<void> {
+  // Count total questions
+  const { count: totalQuestions } = await supabase
+    .from("questions")
+    .select("*", { count: "exact", head: true })
+    .eq("lane", "prediction");
 
-  // Recalculate accuracy if predictions changed
-  if (field === "correct_predictions" || field === "total_predictions") {
-    const totalPred =
-      field === "total_predictions"
-        ? newValue
-        : stats.totalPredictions;
-    const correctPred =
-      field === "correct_predictions"
-        ? newValue
-        : stats.correctPredictions;
-    updateData.accuracy =
-      totalPred > 0 ? (correctPred / totalPred) * 100 : 0;
-  }
+  // Count total predictions (questions where agent made a prediction)
+  const { count: totalPredictions } = await supabase
+    .from("questions")
+    .select("*", { count: "exact", head: true })
+    .eq("lane", "prediction")
+    .not("agent_prediction", "is", null);
 
-  await supabase.from("agent_stats").update(updateData).eq("id", 1);
+  // Count correct predictions
+  const { count: correctPredictions } = await supabase
+    .from("questions")
+    .select("*", { count: "exact", head: true })
+    .eq("lane", "prediction")
+    .eq("agent_correct", true);
+
+  const total = totalPredictions ?? 0;
+  const correct = correctPredictions ?? 0;
+  const accuracy = total > 0 ? (correct / total) * 100 : 0;
+
+  await supabase
+    .from("agent_stats")
+    .update({
+      total_questions: totalQuestions ?? 0,
+      total_predictions: total,
+      correct_predictions: correct,
+      accuracy,
+      last_action_at: new Date().toISOString(),
+    })
+    .eq("id", 1);
 }
 
 export async function updateUptime(seconds: number): Promise<void> {

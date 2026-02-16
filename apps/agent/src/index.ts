@@ -58,11 +58,21 @@ async function main(): Promise<void> {
 
   agentLog.info("🧠 Brain starting autonomous loop...");
 
+  // Tick lock: prevent overlapping ticks (root cause of duplicate resolution)
+  let tickInProgress = false;
+
   const brainInterval = setInterval(async () => {
+    if (tickInProgress) {
+      agentLog.debug("Tick skipped — previous tick still running");
+      return;
+    }
+    tickInProgress = true;
     try {
       await brain.tick();
     } catch (err) {
       agentLog.error({ err }, "Brain tick fatal error");
+    } finally {
+      tickInProgress = false;
     }
   }, config.BRAIN_TICK_INTERVAL_MS);
 
